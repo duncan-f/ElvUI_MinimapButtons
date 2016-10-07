@@ -1,10 +1,10 @@
 ﻿local addonName = ...;
 local E, L, V, P, G, _ =  unpack(ElvUI);
 local EP = LibStub("LibElvUIPlugin-1.0")
-local mod = E:NewModule("MinimapButtons");
+local addon = E:NewModule("MinimapButtons");
 
-function mod:Initialize()
+function addon:Initialize()
 
 end
 
-E:RegisterModule(mod:GetName());
+E:RegisterModule(addon:GetName());
