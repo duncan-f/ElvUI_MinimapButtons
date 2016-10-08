@@ -1,7 +1,7 @@
 ﻿local addonName = ...;
 local E, L, V, P, G, _ =  unpack(ElvUI);
 local EP = LibStub("LibElvUIPlugin-1.0")
-local addon = E:NewModule("MinimapButtons", "AceHook-3.0", "AceEvent-3.0");
+local addon = E:NewModule("MinimapButtons", "AceHook-3.0", "AceEvent-3.0", "AceTimer-3.0");
 
 local ceil = math.ceil
 local tinsert = table.insert
@@ -288,6 +288,8 @@ function addon:SkinMinimapButton(button)
 	button:HookScript("OnEnter", self.OnEnter);
 	button:HookScript("OnLeave", self.OnLeave);
 
+	self:UpdateLayout();
+
 	button.isSkinned = true
 	tinsert(SkinnedButtons, button)
 end
@@ -420,7 +422,6 @@ end
 function addon:UpdateFrame()
 	addon:GrabMinimapButtons()
 	addon:UpdateLayout()
-	addon:OnLeave()
 end
 
 function addon:Initialize()
@@ -446,7 +447,7 @@ function addon:Initialize()
 	self:RegisterEvent("ADDON_LOADED", "UpdateFrame")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateFrame")
 
-	E:Delay(5, self.UpdateFrame);
+	self:ScheduleRepeatingTimer("GrabMinimapButtons", 5);
 end
 
 E:RegisterModule(addon:GetName());
