@@ -70,21 +70,12 @@ local function GetOptions()
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateAlpha(); end,
 	}
 	E.Options.args.maps.args.minimap.args.icons.args.alpha = {
-		order = 3,
+		order = 4,
 		type = "range",
-		name = L["Aplha"],
+		name = L["Alpha"],
 		min = 0, max = 1, step = 0.01,
 		get = function(info) return E.db.general.minimap.buttons[ info[#info] ]; end,
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateAlpha(); end,
-	};
-	E.Options.args.maps.args.minimap.args.icons.args.buttonsPerRow = {
-		order = 4,
-		type = "range",
-		name = L["Buttons Per Row"],
-		desc = L["The amount of buttons to display per row."],
-		min = 1, max = 12, step = 1,
-		get = function(info) return E.db.general.minimap.buttons[ info[#info] ]; end,
-		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
 	};
 	E.Options.args.maps.args.minimap.args.icons.args.buttonsPerRow = {
 		order = 5,
@@ -95,8 +86,17 @@ local function GetOptions()
 		get = function(info) return E.db.general.minimap.buttons[ info[#info] ]; end,
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
 	};
-	E.Options.args.maps.args.minimap.args.icons.args.buttonsize = {
+	E.Options.args.maps.args.minimap.args.icons.args.buttonsPerRow = {
 		order = 6,
+		type = "range",
+		name = L["Buttons Per Row"],
+		desc = L["The amount of buttons to display per row."],
+		min = 1, max = 12, step = 1,
+		get = function(info) return E.db.general.minimap.buttons[ info[#info] ]; end,
+		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
+	};
+	E.Options.args.maps.args.minimap.args.icons.args.buttonsize = {
+		order = 7,
 		type = "range",
 		name = L["Button Size"],
 		min = 2, max = 60, step = 1,
@@ -104,7 +104,7 @@ local function GetOptions()
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
 	};
 	E.Options.args.maps.args.minimap.args.icons.args.buttonspacing = {
-		order = 7,
+		order = 8,
 		type = "range",
 		name = L["Button Spacing"],
 		desc = L["The spacing between buttons."],
@@ -113,7 +113,7 @@ local function GetOptions()
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
 	};
 	E.Options.args.maps.args.minimap.args.icons.args.backdropSpacing = {
-		order = 8,
+		order = 9,
 		type = "range",
 		name = L["Backdrop Spacing"],
 		desc = L["The spacing between the backdrop and the buttons."],
@@ -122,7 +122,7 @@ local function GetOptions()
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
 	};
 	E.Options.args.maps.args.minimap.args.icons.args.insideMinimapGroup = {
-		order = 9,
+		order = 10,
 		type = "group",
 		name = L["Inside Minimap"],
 		guiInline = true,
