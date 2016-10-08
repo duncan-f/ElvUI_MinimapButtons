@@ -182,11 +182,7 @@ local IgnoreButtons = {
 	"MinimapZoneTextButton",
 	"MinimapZoomIn",
 	"MinimapZoomOut",
-	"TimeManagerClockButton",
-
---	"FeedbackUIButton",
---	"HelpOpenTicketButton",
---	"QueueStatusMinimapButton",
+	"TimeManagerClockButton"
 }
 
 local GenericIgnores = {
@@ -299,15 +295,17 @@ end
 function addon:UpdatePosition()
 	local db = E.db.general.minimap.buttons.insideMinimap;
 
-	self.frame:ClearAllPoints();
 	if(db.enable) then
-		self.frame:Point(db.position, Minimap, db.position, db.xOffset, db.yOffset);
+		self.frame.mover:ClearAllPoints();
+		self.frame.mover:Point(db.position, Minimap, db.position, db.xOffset, db.yOffset);
 
 		E:DisableMover(self.frame.mover:GetName());
 	else
-		self.frame:Point(self.frame.mover:GetPoint());
-
 		E:EnableMover(self.frame.mover:GetName());
+
+		local point, anchor, secondaryPoint, x, y = string.split(",", E.db["movers"][self.frame.mover:GetName()] or E.CreatedMovers[self.frame.mover:GetName()]["point"]);
+		self.frame.mover:ClearAllPoints();
+		self.frame.mover:SetPoint(point, anchor, secondaryPoint, x, y);
 	end
 end
 
@@ -437,6 +435,7 @@ function addon:Initialize()
 	self.frame.backdrop:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -offset, offset);
 
 	self.frame:Point("TOPRIGHT", UIParent, "TOPRIGHT", -3, -201)
+	self:UpdateFrame();
 	E:CreateMover(self.frame, "MinimapButtonGrabberMover", L["Minimap Button Grabber"], nil, nil, nil, "ALL,GENERAL")
 	self:UpdatePosition();
 	self:UpdateAlpha();
