@@ -222,6 +222,18 @@ function addon:GrabMinimapButtons()
 			end
 		end
 	end
+	
+	for i = 1, MinimapBackdrop:GetNumChildren() do
+		local object = select(i, MinimapBackdrop:GetChildren());
+
+		if(object) then
+			if(object:IsObjectType("Button") and object:GetName()) then
+				self:SkinMinimapButton(object);
+			end
+		end
+	end
+
+	if(FishingBuddyMinimapFrame) then self:SkinMinimapButton(FishingBuddyMinimapButton); end
 end
 
 function addon:SkinMinimapButton(button)
@@ -285,6 +297,8 @@ function addon:SkinMinimapButton(button)
 	button:SetFrameLevel(Minimap:GetFrameLevel() + 5)
 
 	button:SetTemplate("Default");
+	button:SetScript("OnDragStart", nil);
+	button:SetScript("OnDragStop", nil);
 	button:HookScript("OnEnter", self.OnEnter);
 	button:HookScript("OnLeave", self.OnLeave);
 
@@ -447,6 +461,7 @@ function addon:Initialize()
 	self:RegisterEvent("ADDON_LOADED", "UpdateFrame")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateFrame")
 
+	self:ScheduleTimer("UpdateFrame", 6);
 	self:ScheduleRepeatingTimer("GrabMinimapButtons", 5);
 end
 
