@@ -309,19 +309,17 @@ end
 
 function addon:UpdatePosition()
 	local db = E.db.general.minimap.buttons.insideMinimap;
-	local mover = self.frame.mover;
 
 	if(db.enable) then
-		mover:ClearAllPoints();
-		mover:Point(db.position, Minimap, db.position, db.xOffset, db.yOffset);
+		self.frame:ClearAllPoints();
+		self.frame:Point(db.position, Minimap, db.position, db.xOffset, db.yOffset);
 
 		E:DisableMover(self.frame.mover:GetName());
 	else
-		E:EnableMover(self.frame.mover:GetName());
+		self.frame:ClearAllPoints();
+		self.frame:SetAllPoints(self.frame.mover);
 
-		local point, anchor, secondaryPoint, x, y = split(",", E.db["movers"][mover:GetName()] or E.CreatedMovers[mover:GetName()]["point"]);
-		mover:ClearAllPoints();
-		mover:Point(point, anchor, secondaryPoint, x, y);
+		E:EnableMover(self.frame.mover:GetName());
 	end
 end
 
@@ -361,80 +359,84 @@ function addon:GetVisibleList()
 end
 
 function addon:UpdateLayout()
-	local VisibleButtons = self:GetVisibleList()
-	if(#VisibleButtons < 1) then return; end
+	if(#SkinnedButtons < 1) then return; end
 
-	local buttonSpacing = E.db.general.minimap.buttons.buttonspacing;
-	local backdropSpacing = E.db.general.minimap.buttons.backdropSpacing or E.db.general.minimap.buttons.buttonspacing;
-	local buttonsPerRow = E.db.general.minimap.buttons.buttonsPerRow;
-	local numButtons = #VisibleButtons;
-	local size = E.db.general.minimap.buttons.buttonsize;
-	local point = E.db.general.minimap.buttons.point;
-	local numColumns = ceil(numButtons / buttonsPerRow);
+	local db = E.db.general.minimap.buttons;
+	local VisibleButtons = self:GetVisibleList();
 
-	if(numButtons < buttonsPerRow) then
-		buttonsPerRow = numButtons;
+	if(#VisibleButtons < 1) then
+		self.frame:Size(db.buttonsize + (db.buttonspacing * 2));
+		return
 	end
 
-	local barWidth = (size * buttonsPerRow) + (buttonSpacing * (buttonsPerRow - 1)) + (backdropSpacing * 2) + ((E.db.general.minimap.buttons.backdrop == true and E.Border or E.Spacing) * 2);
-	local barHeight = (size * numColumns) + (buttonSpacing * (numColumns - 1)) + (backdropSpacing * 2) + ((E.db.general.minimap.buttons.backdrop == true and E.Border or E.Spacing) * 2);
-	self.frame:Size(barWidth, barHeight);
+	local backdropSpacing = db.backdropSpacing or db.buttonspacing;
+	local numButtons = #VisibleButtons;
+	local numColumns = ceil(numButtons / db.buttonsPerRow);
 
-	if(E.db.general.minimap.buttons.backdrop == true) then
+	if(numButtons < db.buttonsPerRow) then
+		db.buttonsPerRow = numButtons;
+	end
+
+	local barWidth = (db.buttonsize * db.buttonsPerRow) + (db.buttonspacing * (db.buttonsPerRow - 1)) + (backdropSpacing * 2) + ((db.backdrop == true and E.Border or E.Spacing) * 2);
+	local barHeight = (db.buttonsize * numColumns) + (db.buttonspacing * (numColumns - 1)) + (backdropSpacing * 2) + ((db.backdrop == true and E.Border or E.Spacing) * 2);
+	self.frame:Size(barWidth, barHeight);
+	self.frame.mover:Size(barWidth, barHeight);
+
+	if(db.backdrop == true) then
 		self.frame.backdrop:Show();
 	else
 		self.frame.backdrop:Hide();
 	end
 
 	local horizontalGrowth, verticalGrowth;
-	if(point == "TOPLEFT" or point == "TOPRIGHT") then
+	if(db.point == "TOPLEFT" or db.point == "TOPRIGHT") then
 		verticalGrowth = "DOWN";
 	else
 		verticalGrowth = "UP";
 	end
 
-	if(point == "BOTTOMLEFT" or point == "TOPLEFT") then
+	if(db.point == "BOTTOMLEFT" or db.point == "TOPLEFT") then
 		horizontalGrowth = "RIGHT";
 	else
 		horizontalGrowth = "LEFT";
 	end
 
-	local firstButtonSpacing = backdropSpacing + (E.db.general.minimap.buttons.backdrop == true and E.Border or E.Spacing);
+	local firstButtonSpacing = backdropSpacing + (db.backdrop == true and E.Border or E.Spacing);
 	for i, button in ipairs(VisibleButtons) do
 		local lastButton = SkinnedButtons[i - 1];
-		local lastColumnButton = SkinnedButtons[i - buttonsPerRow];
-		button:Size(size);
+		local lastColumnButton = SkinnedButtons[i - db.buttonsPerRow];
+		button:Size(db.buttonsize);
 		button:ClearAllPoints();
 
 		if(i == 1) then
 			local x, y;
-			if(point == "BOTTOMLEFT") then
+			if(db.point == "BOTTOMLEFT") then
 				x, y = firstButtonSpacing, firstButtonSpacing;
-			elseif(point == "TOPRIGHT") then
+			elseif(db.point == "TOPRIGHT") then
 				x, y = -firstButtonSpacing, -firstButtonSpacing;
-			elseif(point == "TOPLEFT") then
+			elseif(db.point == "TOPLEFT") then
 				x, y = firstButtonSpacing, -firstButtonSpacing;
 			else
 				x, y = -firstButtonSpacing, firstButtonSpacing;
 			end
 
-			button:Point(point, self.frame, point, x, y);
-		elseif((i - 1) % buttonsPerRow == 0) then
+			button:Point(db.point, self.frame, db.point, x, y);
+		elseif((i - 1) % db.buttonsPerRow == 0) then
 			local x = 0;
-			local y = -buttonSpacing;
+			local y = -db.buttonspacing;
 			local buttonPoint, anchorPoint = "TOP", "BOTTOM";
 			if(verticalGrowth == "UP") then
-				y = buttonSpacing;
+				y = db.buttonspacing;
 				buttonPoint = "BOTTOM";
 				anchorPoint = "TOP";
 			end
 			button:Point(buttonPoint, lastColumnButton, anchorPoint, x, y);
 		else
-			local x = buttonSpacing;
+			local x = db.buttonspacing;
 			local y = 0;
 			local buttonPoint, anchorPoint = "LEFT", "RIGHT";
 			if(horizontalGrowth == "LEFT") then
-				x = -buttonSpacing;
+				x = -db.buttonspacing;
 				buttonPoint = "RIGHT";
 				anchorPoint = "LEFT";
 			end
@@ -461,24 +463,30 @@ end
 function addon:Initialize()
 	EP:RegisterPlugin(addonName, GetOptions);
 
+	local db = E.db.general.minimap.buttons;
+	local backdropSpacing = db.backdropSpacing or db.buttonspacing;
+
 	self.frame = CreateFrame("Button", "ElvUI_MinimapButtonGrabber", UIParent)
+	self.frame:Size(db.buttonsize + (backdropSpacing * 2));
+	self.frame:Point("TOPRIGHT", MMHolder, "BOTTOMRIGHT", 0, 0);
 	self.frame:SetFrameStrata("LOW")
 	self.frame:SetClampedToScreen(true)
 	self.frame:CreateBackdrop("Default");
-	local offset = E.Spacing;
-	self.frame.backdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", offset, -offset);
-	self.frame.backdrop:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -offset, offset);
 
-	self.frame:Point("TOPRIGHT", UIParent, "TOPRIGHT", -3, -201);
-	self:GrabMinimapButtons();
-	self:UpdateLayout();
-	self:UpdateAlpha();
+	self.frame.backdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", E.Spacing, -E.Spacing);
+	self.frame.backdrop:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -E.Spacing, E.Spacing);
 
 	E:CreateMover(self.frame, "MinimapButtonGrabberMover", L["Minimap Button Grabber"], nil, nil, nil, "ALL,GENERAL");
+
+	if(self.frame.mover:GetScript("OnSizeChanged")) then
+		self.frame.mover:SetScript("OnSizeChanged", nil);
+	end
+
+	self:UpdateAlpha();
 	self:UpdatePosition();
 
-	self.frame:SetScript("OnEnter", self.OnEnter)
-	self.frame:SetScript("OnLeave", self.OnLeave)
+	self.frame:SetScript("OnEnter", self.OnEnter);
+	self.frame:SetScript("OnLeave", self.OnLeave);
 
 	self:ScheduleTimer("GrabMinimapButtons", 6);
 	self:ScheduleRepeatingTimer("GrabMinimapButtons", 5);
