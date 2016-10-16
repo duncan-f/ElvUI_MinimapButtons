@@ -212,6 +212,22 @@ local WhiteList = {
 	"LibDBIcon",
 }
 
+function addon:CheckVisibility()
+	local updateLayout = false;
+
+	for _, button in ipairs(SkinnedButtons) do
+		if(button:IsVisible() and button.hidden) then
+			button.hidden = false;
+			updateLayout = true;
+		elseif(not button:IsVisible() and not button.hidden) then
+			button.hidden = true;
+			updateLayout = true;
+		end
+	end
+
+	return updateLayout;
+end
+
 function addon:GrabMinimapButtons()
 	for i = 1, Minimap:GetNumChildren() do
 		local object = select(i, Minimap:GetChildren())
@@ -277,10 +293,19 @@ function addon:SkinMinimapButton(button)
 			if texture and (find(texture, "Border") or find(texture, "Background") or find(texture, "AlphaMask")) then
 				region:SetTexture(nil)
 			else
-				if name == "BagSync_MinimapButton" then region:SetTexture("Interface\\AddOns\\BagSync\\media\\icon") end
-				if name == "DBMMinimapButton" then region:SetTexture("Interface\\Icons\\INV_Helmet_87") end
-				if name == "SmartBuff_MiniMapButton" then region:SetTexture("Interface\\Icons\\Spell_Nature_Purge") end
-				if name == "VendomaticButtonFrame" then region:SetTexture("Interface\\Icons\\INV_Misc_Rabbit_2") end
+				if name == "BagSync_MinimapButton" then
+					region:SetTexture("Interface\\AddOns\\BagSync\\media\\icon")
+				elseif name == "DBMMinimapButton" then
+					region:SetTexture("Interface\\Icons\\INV_Helmet_87")
+				elseif name == "OutfitterMinimapButton" then
+					if region:GetTexture() == "Interface\\Addons\\Outfitter\\Textures\\MinimapButton" then
+						region:SetTexture(nil)
+					end
+				elseif name == "SmartBuff_MiniMapButton" then
+					region:SetTexture("Interface\\Icons\\Spell_Nature_Purge")
+				elseif name == "VendomaticButtonFrame" then
+					region:SetTexture("Interface\\Icons\\INV_Misc_Rabbit_2")
+				end
 
 				region:ClearAllPoints()
 				region:SetInside()
@@ -307,46 +332,6 @@ function addon:SkinMinimapButton(button)
 	self.needupdate = true;
 end
 
-function addon:UpdatePosition()
-	local db = E.db.general.minimap.buttons.insideMinimap;
-
-	if(db.enable) then
-		self.frame:ClearAllPoints();
-		self.frame:Point(db.position, Minimap, db.position, db.xOffset, db.yOffset);
-
-		E:DisableMover(self.frame.mover:GetName());
-	else
-		self.frame:ClearAllPoints();
-		self.frame:SetAllPoints(self.frame.mover);
-
-		E:EnableMover(self.frame.mover:GetName());
-	end
-end
-
-function addon:UpdateAlpha()
-	if(E.db.general.minimap.buttons.mouseover) then
-		self.frame:SetAlpha(0);
-	else
-		self.frame:SetAlpha(E.db.general.minimap.buttons.alpha);
-	end
-end
-
-function addon:CheckVisibility()
-	local updateLayout = false;
-
-	for _, button in ipairs(SkinnedButtons) do
-		if(button:IsVisible() and button.hidden) then
-			button.hidden = false;
-			updateLayout = true;
-		elseif(not button:IsVisible() and not button.hidden) then
-			button.hidden = true;
-			updateLayout = true;
-		end
-	end
-
-	return updateLayout;
-end
-
 function addon:GetVisibleList()
 	local tab = {}
 	for _, button in ipairs(SkinnedButtons) do
@@ -366,7 +351,12 @@ function addon:UpdateLayout()
 
 	if(#VisibleButtons < 1) then
 		self.frame:Size(db.buttonsize + (db.buttonspacing * 2));
+		self.frame.backdrop:Hide();
 		return
+	end
+
+	if(not self.frame.backdrop:IsShown()) then
+		self.frame.backdrop:Show();
 	end
 
 	local backdropSpacing = db.backdropSpacing or db.buttonspacing;
@@ -448,6 +438,30 @@ function addon:UpdateLayout()
 	self.needupdate = false
 end
 
+function addon:UpdatePosition()
+	local db = E.db.general.minimap.buttons.insideMinimap;
+
+	if(db.enable) then
+		self.frame:ClearAllPoints();
+		self.frame:Point(db.position, Minimap, db.position, db.xOffset, db.yOffset);
+
+		E:DisableMover(self.frame.mover:GetName());
+	else
+		self.frame:ClearAllPoints();
+		self.frame:SetAllPoints(self.frame.mover);
+
+		E:EnableMover(self.frame.mover:GetName());
+	end
+end
+
+function addon:UpdateAlpha()
+	if(E.db.general.minimap.buttons.mouseover) then
+		self.frame:SetAlpha(0);
+	else
+		self.frame:SetAlpha(E.db.general.minimap.buttons.alpha);
+	end
+end
+
 function addon:OnEnter()
 	if(E.db.general.minimap.buttons.mouseover) then
 		UIFrameFadeIn(ElvUI_MinimapButtonGrabber, 0.1, ElvUI_MinimapButtonGrabber:GetAlpha(), E.db.general.minimap.buttons.alpha)
@@ -475,6 +489,7 @@ function addon:Initialize()
 
 	self.frame.backdrop:SetPoint("TOPLEFT", self.frame, "TOPLEFT", E.Spacing, -E.Spacing);
 	self.frame.backdrop:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -E.Spacing, E.Spacing);
+	self.frame.backdrop:Hide()
 
 	E:CreateMover(self.frame, "MinimapButtonGrabberMover", L["Minimap Button Grabber"], nil, nil, nil, "ALL,GENERAL");
 
@@ -488,7 +503,6 @@ function addon:Initialize()
 	self.frame:SetScript("OnEnter", self.OnEnter);
 	self.frame:SetScript("OnLeave", self.OnLeave);
 
-	self:ScheduleTimer("GrabMinimapButtons", 6);
 	self:ScheduleRepeatingTimer("GrabMinimapButtons", 5);
 end
 
