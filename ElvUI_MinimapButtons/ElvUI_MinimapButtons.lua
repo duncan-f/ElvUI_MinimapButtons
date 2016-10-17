@@ -117,7 +117,7 @@ local function GetOptions()
 		type = "range",
 		name = L["Backdrop Spacing"],
 		desc = L["The spacing between the backdrop and the buttons."],
-		min = 0, max = 10, step = 1,
+		min = -1, max = 15, step = 1,
 		get = function(info) return E.db.general.minimap.buttons[ info[#info] ]; end,
 		set = function(info, value) E.db.general.minimap.buttons[ info[#info] ] = value; addon:UpdateLayout(); end,
 	};
@@ -367,8 +367,8 @@ function addon:UpdateLayout()
 		db.buttonsPerRow = numButtons;
 	end
 
-	local barWidth = (db.buttonsize * db.buttonsPerRow) + (db.buttonspacing * (db.buttonsPerRow - 1)) + (backdropSpacing * 2) + ((db.backdrop == true and E.Border or E.Spacing) * 2);
-	local barHeight = (db.buttonsize * numColumns) + (db.buttonspacing * (numColumns - 1)) + (backdropSpacing * 2) + ((db.backdrop == true and E.Border or E.Spacing) * 2);
+	local barWidth = (db.buttonsize * db.buttonsPerRow) + (db.buttonspacing * (db.buttonsPerRow - 1)) + ((db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2);
+	local barHeight = (db.buttonsize * numColumns) + (db.buttonspacing * (numColumns - 1)) + ((db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2);
 	self.frame:Size(barWidth, barHeight);
 	self.frame.mover:Size(barWidth, barHeight);
 
@@ -391,7 +391,7 @@ function addon:UpdateLayout()
 		horizontalGrowth = "LEFT";
 	end
 
-	local firstButtonSpacing = backdropSpacing + (db.backdrop == true and E.Border or E.Spacing);
+	local firstButtonSpacing = (db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing);
 	for i, button in ipairs(VisibleButtons) do
 		local lastButton = SkinnedButtons[i - 1];
 		local lastColumnButton = SkinnedButtons[i - db.buttonsPerRow];
