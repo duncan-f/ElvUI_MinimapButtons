@@ -28,7 +28,7 @@ local positionValues = {
 };
 
 P.general.minimap.buttons = {
-	buttonsize = 30,
+	buttonsize = 26,
 	buttonspacing = 1,
 	backdropSpacing = 1,
 	buttonsPerRow = 1,
@@ -40,7 +40,7 @@ P.general.minimap.buttons = {
 		enable = true,
 		position = "TOPLEFT",
 		xOffset = 1,
-		yOffset = 1
+		yOffset = -1
 	};
 };
 
@@ -246,6 +246,7 @@ function addon:GrabMinimapButtons()
 	end
 
 	if(FishingBuddyMinimapFrame) then self:SkinMinimapButton(FishingBuddyMinimapButton); end
+	if(AtlasButtonFrame) then self:SkinMinimapButton(AtlasButton); end
 
 	if(self:CheckVisibility() or self.needupdate) then
 		self:UpdateLayout();
