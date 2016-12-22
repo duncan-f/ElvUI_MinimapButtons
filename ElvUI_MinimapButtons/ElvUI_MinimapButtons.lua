@@ -236,8 +236,9 @@ function addon:GrabMinimapButtons()
 		end
 	end
 
-	if(FishingBuddyMinimapFrame) then self:SkinMinimapButton(FishingBuddyMinimapButton); end
 	if(AtlasButtonFrame) then self:SkinMinimapButton(AtlasButton); end
+	if(FishingBuddyMinimapFrame) then self:SkinMinimapButton(FishingBuddyMinimapButton); end
+	if(HealBot_MMButton) then self:SkinMinimapButton(HealBot_MMButton); end
 
 	if(self:CheckVisibility() or self.needupdate) then
 		self:UpdateLayout();
@@ -353,13 +354,14 @@ function addon:UpdateLayout()
 
 	local backdropSpacing = db.backdropSpacing or db.buttonspacing;
 	local numButtons = #VisibleButtons;
-	local numColumns = ceil(numButtons / db.buttonsPerRow);
+	local buttonsPerRow = db.buttonsPerRow;
+	local numColumns = ceil(numButtons / buttonsPerRow);
 
-	if(numButtons < db.buttonsPerRow) then
-		db.buttonsPerRow = numButtons;
+	if(numButtons < buttonsPerRow) then
+		buttonsPerRow = numButtons;
 	end
 
-	local barWidth = (db.buttonsize * db.buttonsPerRow) + (db.buttonspacing * (db.buttonsPerRow - 1)) + ((db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2);
+	local barWidth = (db.buttonsize * buttonsPerRow) + (db.buttonspacing * (buttonsPerRow - 1)) + ((db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2);
 	local barHeight = (db.buttonsize * numColumns) + (db.buttonspacing * (numColumns - 1)) + ((db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing)*2);
 	self.frame:Size(barWidth, barHeight);
 	self.frame.mover:Size(barWidth, barHeight);
@@ -386,7 +388,7 @@ function addon:UpdateLayout()
 	local firstButtonSpacing = (db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing);
 	for i, button in ipairs(VisibleButtons) do
 		local lastButton = SkinnedButtons[i - 1];
-		local lastColumnButton = SkinnedButtons[i - db.buttonsPerRow];
+		local lastColumnButton = SkinnedButtons[i - buttonsPerRow];
 		button:Size(db.buttonsize);
 		button:ClearAllPoints();
 
@@ -403,7 +405,7 @@ function addon:UpdateLayout()
 			end
 
 			button:Point(db.point, self.frame, db.point, x, y);
-		elseif((i - 1) % db.buttonsPerRow == 0) then
+		elseif((i - 1) % buttonsPerRow == 0) then
 			local x = 0;
 			local y = -db.buttonspacing;
 			local buttonPoint, anchorPoint = "TOP", "BOTTOM";
