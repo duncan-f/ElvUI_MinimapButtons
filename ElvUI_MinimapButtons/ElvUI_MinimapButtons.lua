@@ -177,9 +177,10 @@ local IgnoreButtons = {
 }
 
 local GenericIgnores = {
-	"LibRockConfig-1.0_MinimapButton",
 	"GuildInstance",
 
+	-- Cartographer
+	"LibRockConfig-1.0_MinimapButton",
 	-- GatherMate
 	"GatherMatePin",
 	"GatherNote",
