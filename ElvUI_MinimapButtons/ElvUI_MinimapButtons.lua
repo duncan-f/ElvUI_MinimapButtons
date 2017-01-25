@@ -179,8 +179,6 @@ local IgnoreButtons = {
 local GenericIgnores = {
 	"GuildInstance",
 
-	-- Cartographer
-	"LibRockConfig-1.0_MinimapButton",
 	-- GatherMate
 	"GatherMatePin",
 	"GatherNote",
@@ -188,6 +186,8 @@ local GenericIgnores = {
 	"GuildMap3Mini",
 	-- HandyNotes
 	"HandyNotesPin",
+	-- LibRockConfig
+	"LibRockConfig-1.0_MinimapButton",
 	-- Nauticus
 	"NauticusMiniIcon",
 	"WestPointer",
@@ -470,6 +470,53 @@ function addon:OnLeave()
 	end
 end
 
+local function EnchantrixIconFix()
+	if not Enchantrix or EnxMiniMapIcon then return end
+
+	local settings = Enchantrix.Settings
+	local oldButton = Enchantrix.MiniIcon
+
+	local newButton = CreateFrame("Button", "EnxMiniMapIcon", Minimap)
+	newButton:Size(20)
+	newButton:SetToplevel(true)
+	newButton:SetFrameStrata("LOW")
+	newButton:Point("RIGHT", Minimap, "LEFT", 0,0)
+	newButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+	newButton.icon = oldButton.icon
+	newButton.icon:SetTexCoord(0.2, 0.84, 0.13, 0.87)
+	newButton.icon:SetParent(newButton)
+	newButton.icon:SetPoint("TOPLEFT", newButton, "TOPLEFT", 0, 0)
+
+	newButton.mask = oldButton.mask
+	newButton.mask:SetParent(newButton)
+	newButton.mask:SetPoint("TOPLEFT", newButton, "TOPLEFT", -8, 8)
+
+	newButton:SetScript("OnClick", oldButton:GetScript("OnClick"))
+
+	oldButton:SetMovable(false)
+	oldButton:SetParent(UIParent)
+	oldButton:Point("TOPRIGHT", UIParent)
+	oldButton:Hide()
+
+	oldButton:SetScript("OnMouseDown", nil)
+	oldButton:SetScript("OnMouseUp", nil)
+	oldButton:SetScript("OnDragStart", nil)
+	oldButton:SetScript("OnDragStop", nil)
+	oldButton:SetScript("OnClick", nil)
+	oldButton:SetScript("OnUpdate", nil)
+
+	Enchantrix.MiniIcon = newButton
+
+	function Enchantrix.MiniIcon.Reposition()
+		if (settings.GetSetting("miniicon.enable")) then
+			newButton:Show()
+		else
+			newButton:Hide()
+		end
+	end
+end
+
 function addon:Initialize()
 	EP:RegisterPlugin(addonName, GetOptions);
 
@@ -500,6 +547,10 @@ function addon:Initialize()
 	self.frame:SetScript("OnLeave", self.OnLeave);
 
 	self:ScheduleRepeatingTimer("GrabMinimapButtons", 5);
+
+	if IsAddOnLoaded("Enchantrix") then
+		EnchantrixIconFix()
+	end
 end
 
 E:RegisterModule(addon:GetName());
