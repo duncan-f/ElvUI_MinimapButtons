@@ -517,6 +517,35 @@ local function EnchantrixIconFix()
 	end
 end
 
+function addon:FixButtons()
+	if IsAddOnLoaded("Atlas") then
+		function AtlasButton_Toggle()
+			if(AtlasButton:IsVisible()) then
+				AtlasButton:Hide();
+				AtlasOptions.AtlasButtonShown = false;
+			else
+				AtlasButton:Show();
+				AtlasOptions.AtlasButtonShown = true;
+			end
+			AtlasOptions_Init();
+		end
+	end
+
+	if IsAddOnLoaded("DBM-Core") then
+		local button = DBMMinimapButton
+		if not button then return end
+
+		if button:GetScript("OnMouseDown") then
+			button:SetScript("OnMouseDown", nil)
+			button:SetScript("OnMouseUp", nil)
+		end
+	end
+
+	if IsAddOnLoaded("Enchantrix") then
+		EnchantrixIconFix()
+	end
+end
+
 function addon:Initialize()
 	EP:RegisterPlugin(addonName, GetOptions);
 
