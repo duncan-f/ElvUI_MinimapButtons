@@ -389,8 +389,8 @@ function addon:UpdateLayout()
 
 	local firstButtonSpacing = (db.backdrop == true and (E.Border + backdropSpacing) or E.Spacing);
 	for i, button in ipairs(VisibleButtons) do
-		local lastButton = SkinnedButtons[i - 1];
-		local lastColumnButton = SkinnedButtons[i - buttonsPerRow];
+		local lastButton = VisibleButtons[i - 1];
+		local lastColumnButton = VisibleButtons[i - buttonsPerRow];
 		button:Size(db.buttonsize);
 		button:ClearAllPoints();
 
@@ -548,9 +548,7 @@ function addon:Initialize()
 
 	self:ScheduleRepeatingTimer("GrabMinimapButtons", 5);
 
-	if IsAddOnLoaded("Enchantrix") then
-		EnchantrixIconFix()
-	end
+	self:FixButtons();
 end
 
 E:RegisterModule(addon:GetName());
