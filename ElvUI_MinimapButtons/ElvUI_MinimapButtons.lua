@@ -580,4 +580,8 @@ function addon:Initialize()
 	self:FixButtons();
 end
 
-E:RegisterModule(addon:GetName());
+local function InitializeCallback()
+	addon:Initialize()
+end
+
+E:RegisterModule(addon:GetName(), InitializeCallback)
